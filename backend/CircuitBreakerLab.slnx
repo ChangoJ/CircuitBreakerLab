@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CircuitBreakerLab.Api/CircuitBreakerLab.Api.csproj" />
+    <Project Path="src/CircuitBreakerLab.Application/CircuitBreakerLab.Application.csproj" />
+    <Project Path="src/CircuitBreakerLab.Domain/CircuitBreakerLab.Domain.csproj" />
+    <Project Path="src/CircuitBreakerLab.Infrastructure/CircuitBreakerLab.Infrastructure.csproj" />
+  </Folder>
+</Solution>

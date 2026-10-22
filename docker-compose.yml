@@ -1,0 +1,55 @@
+name: ${COMPOSE_PROJECT_NAME:?COMPOSE_PROJECT_NAME is required}
+
+x-dotnet-environment: &dotnet-environment
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:?ASPNETCORE_ENVIRONMENT is required}
+  ASPNETCORE_HTTP_PORTS: ${CONTAINER_PORT:?CONTAINER_PORT is required}
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+services:
+  simulator:
+    build:
+      context: ./simulator
+      dockerfile: Dockerfile
+      args:
+        DOTNET_VERSION: ${DOTNET_VERSION:?DOTNET_VERSION is required}
+    image: ${COMPOSE_PROJECT_NAME}/provider-simulator:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: ${COMPOSE_PROJECT_NAME}-simulator
+    environment:
+      <<: *dotnet-environment
+      Simulator__DefaultMode: ${SIMULATOR_DEFAULT_MODE:?SIMULATOR_DEFAULT_MODE is required}
+      Simulator__DefaultFailureRate: ${SIMULATOR_DEFAULT_FAILURE_RATE:?SIMULATOR_DEFAULT_FAILURE_RATE is required}
+      Simulator__DefaultLatencyMs: ${SIMULATOR_DEFAULT_LATENCY_MS:?SIMULATOR_DEFAULT_LATENCY_MS is required}
+    ports:
+      - "${SIMULATOR_PORT:?SIMULATOR_PORT is required}:${CONTAINER_PORT}"
+    networks:
+      - lab
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        DOTNET_VERSION: ${DOTNET_VERSION}
+    image: ${COMPOSE_PROJECT_NAME}/api:${IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-api
+    environment:
+      <<: *dotnet-environment
+      ExchangeRateProvider__BaseUrl: ${PROVIDER_BASE_URL:?PROVIDER_BASE_URL is required}
+      ExchangeRateProvider__TimeoutSeconds: ${PROVIDER_TIMEOUT_SECONDS:?PROVIDER_TIMEOUT_SECONDS is required}
+      CircuitBreaker__FailureRatio: ${CB_FAILURE_RATIO:?CB_FAILURE_RATIO is required}
+      CircuitBreaker__MinimumThroughput: ${CB_MINIMUM_THROUGHPUT:?CB_MINIMUM_THROUGHPUT is required}
+      CircuitBreaker__SamplingDurationSeconds: ${CB_SAMPLING_DURATION_SECONDS:?CB_SAMPLING_DURATION_SECONDS is required}
+      CircuitBreaker__BreakDurationSeconds: ${CB_BREAK_DURATION_SECONDS:?CB_BREAK_DURATION_SECONDS is required}
+      CircuitBreaker__EventHistorySize: ${CB_EVENT_HISTORY_SIZE:?CB_EVENT_HISTORY_SIZE is required}
+    ports:
+      - "${API_PORT:?API_PORT is required}:${CONTAINER_PORT}"
+    depends_on:
+      - simulator
+    networks:
+      - lab
+    restart: unless-stopped
+
+networks:
+  lab:
+    driver: bridge

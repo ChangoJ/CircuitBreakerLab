@@ -1,0 +1,44 @@
+@api = http://localhost:5080
+@simulator = http://localhost:5090
+
+### Exchange rate through the circuit breaker
+GET {{api}}/api/exchange-rates?base=USD&target=EUR
+
+### Circuit status, policy, metrics and events
+GET {{api}}/api/circuit-breaker
+
+### Manually reset (close) the circuit
+POST {{api}}/api/circuit-breaker/reset
+
+### Manually isolate (force open) the circuit
+POST {{api}}/api/circuit-breaker/isolate
+
+### Invalid currency code
+GET {{api}}/api/exchange-rates?base=US1&target=EUR
+
+### Provider behavior
+GET {{simulator}}/admin/behavior
+
+### Provider healthy
+PUT {{simulator}}/admin/behavior
+Content-Type: application/json
+
+{ "mode": "Healthy" }
+
+### Provider always failing (HTTP 500)
+PUT {{simulator}}/admin/behavior
+Content-Type: application/json
+
+{ "mode": "Failing" }
+
+### Provider slower than the configured timeout
+PUT {{simulator}}/admin/behavior
+Content-Type: application/json
+
+{ "mode": "Slow", "latencyMs": 5000 }
+
+### Provider failing randomly
+PUT {{simulator}}/admin/behavior
+Content-Type: application/json
+
+{ "mode": "Intermittent", "failureRate": 0.6 }

@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/*.http
+**/TestResults/
+**/appsettings.Development.json
+**/Properties/launchSettings.json
+**/.env
+**/.env.*
+**/Dockerfile*
+**/.dockerignore
+**/.git
+**/.gitignore
+**/README.md
